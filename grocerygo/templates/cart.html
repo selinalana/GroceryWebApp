@@ -1,90 +1,63 @@
-{% extends 'bases/cartbase.html' %}
-{% load static %}
-{% block content %}
+{% load static custom_tags %}
+<head>
+    <title>My Cart</title>
+</head>
+{% include 'navigation.html' %}
 
-<div class="card">
-    <div class="row">
-        <div class="col-md-8 cart">
-            <div class="title">
-                <div class="row">
-                    <div class="col"><h4><b>Shopping Cart</b></h4></div>
-                    <div class="col align-self-center text-right text-muted">3 items</div>
-                </div>
-            </div>    
-            <!-- Item 1 -->
-            <div class="row border-top border-bottom">
-                <div class="row main align-items-center">
-                    <div class="col-2"><img class="img-fluid" src="https://i.imgur.com/1GrakTl.jpg"></div>
-                    <div class="col">
-                        <div class="row text-muted">Shirt</div>
-                        <div class="row">Cotton T-shirt</div>
-                    </div>
-                    <div class="col">
-                        <a href="#">-</a><a href="#" class="border">1</a><a href="#">+</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">&euro; 44.00</div>
-                    <div class="col-auto"><span class="close">&#10005;</span></div>
-                </div>
-            </div>
-            <!-- Item 2 -->
-            <div class="row border-top border-bottom">
-                <div class="row main align-items-center">
-                    <div class="col-2"><img class="img-fluid" src="https://i.imgur.com/ba3tvGm.jpg"></div>
-                    <div class="col">
-                        <div class="row text-muted">Shirt</div>
-                        <div class="row">Cotton T-shirt</div>
-                    </div>
-                    <div class="col">
-                        <a href="#">-</a><a href="#" class="border">1</a><a href="#">+</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">&euro; 44.00</div>
-                    <div class="col-auto"><span class="close">&#10005;</span></div>
-                </div>
-            </div>
-            <!-- Item 3 -->
-            <div class="row border-top border-bottom">
-                <div class="row main align-items-center">
-                    <div class="col-2"><img class="img-fluid" src="https://i.imgur.com/pHQ3xT3.jpg"></div>
-                    <div class="col">
-                        <div class="row text-muted">Shirt</div>
-                        <div class="row">Cotton T-shirt</div>
-                    </div>
-                    <div class="col">
-                        <a href="#">-</a><a href="#" class="border">1</a><a href="#">+</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">&euro; 44.00</div>
-                    <div class="col-auto"><span class="close">&#10005;</span></div>
-                </div>
-            </div>
-            <div class="back-to-shop"><a href="#">&leftarrow;</a><span class="text-muted">Back to shop</span></div>
-        </div>
-        <div class="col-md-4 summary">
-            <div><h5><b>Summary</b></h5></div>
-            <hr>
-            <div class="row">
-                <div class="col" style="padding-left:0;">ITEMS 3</div>
-                <div class="col text-right">&euro; 132.00</div>
-            </div>
-            <form>
-                <p>SHIPPING</p>
-                <select><option class="text-muted">Standard-Delivery- &euro;5.00</option></select>
-                <p>GIVE CODE</p>
-                <input id="code" placeholder="Enter your code">
-            </form>
-            <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
-                <div class="col">TOTAL PRICE</div>
-                <div class="col text-right">&euro; 137.00</div>
-            </div>
-            <button class="btn">CHECKOUT</button>
-        </div>
+<div class="container-fluid">
+    <div class="container">
+        <h2 style="font-family:roman;font-size:bold">
+            My Cart
+            <a href="/user-product/0/" class="btn btn-warning " style="float:right">Continue Shopping</a>   
+            <a href="/booking/" class="btn btn-info mr-2" style="float:right">Buy Now</a>
+        <h2>
+        <table class="table table-bordered" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i, j in product.items %}
+                <tr>
+                    <td>
+                        <img class="img-thumbnail" src="{{i|productimage}}" alt="product" style="width:100px;height:100px"></a>
+                    </td>
+                    <td><a href="/product-detail/{{i}}/">{{i|productname}}</a></td>
+                    <td>Rs. {{i|applydiscount}}</td>
+                    <td style="width:15%">
+                        <div class="input-group">
+                            <a href="/incredecre/{{i}}/?action=decre" class="btn btn-warning pull-left" id="decrebtn-{{forloop.counter}}">-</a>
+                            <input type="text" class="cart-plus-minus-box" type="text" style="width:30%;border:1px solid grey" id="shop_qty-{{forloop.counter}}" name="qtybutton" value="{{j}}" readonly/>
+                            <a href="/incredecre/{{i}}/?action=incre" class="btn btn-warning pull-right">+</a>
+                        </div>
+                    </td>
+                    <td id="totalprice-{{forloop.counter}}">{% producttotalprice i j %}</td>
+                    <td>
+                        <a href="/deletecart/{{i}}/" class="btn btn-danger"><i class="fa fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="4"></td>
+                    <td colspan="2" id="total-price"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    
 </div>
 
-{% endblock content %}
+<script>
+    var prolenth = '{{lengthpro}}';
+    var mytotal = 0;
+    for(var i=1;i<=prolenth*1;i++){
+        totalprice = parseFloat(document.getElementById('totalprice-'+i).innerHTML);
+        var mytotal = parseFloat(mytotal) + (totalprice);
+    }
+    document.getElementById('total-price').innerHTML  = mytotal;
+</script>
