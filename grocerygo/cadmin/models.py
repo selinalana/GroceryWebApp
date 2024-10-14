@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django import forms
 
 # Create your models here.
 class Carousel(models.Model):
@@ -69,3 +70,16 @@ class Feedback(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+MSGSTATUS = ((1, "Read"), (2, "Unread"))
+class Contact(models.Model):
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    contact_number = models.CharField(max_length=15)
+    message = models.TextField()
+    status = models.IntegerField(choices=MSGSTATUS,default=2) 
+
+    def __str__(self):
+        return self.first_name
+    

@@ -48,6 +48,9 @@ urlpatterns = [
     path('manage-user/', manage_user, name="manage_user"),
     path('delete-user/<int:pid>/', delete_user, name="delete_user"),
     path('admin-change-password/',admin_change_password, name="admin_change_password"),
+    path('manage-messages/', manage_messages, name="manage_messages"),
+    path('delete-messages/<int:pid>/', delete_messages, name="delete_messages"),
+    path('message-read/<int:pid>/', read_messages, name="read_messages"),
     
 
 

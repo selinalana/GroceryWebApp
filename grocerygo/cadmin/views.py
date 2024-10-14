@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 import json
 from django.http import HttpResponse
+from django.http import JsonResponse
+from django.db import IntegrityError
 
 def home(request):
     return render(request, 'home.html')
@@ -22,6 +24,24 @@ def index(request):
     return render(request, 'index.html',dict)
 
 def contact(request):
+    if request.method == 'POST':
+        # Get the form data from the POST request
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        contact_number = request.POST['contact_number']
+        message = request.POST['message']
+
+        # Create a new Contact object and save it to the database
+        contact = Contact(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            contact_number=contact_number,
+            message=message
+        )
+        contact.save()  # Save the contact form data to the database
+        return redirect(index)
     return render(request, 'contact.html')
 
 def adminLogin(request):
@@ -60,6 +80,8 @@ def admin_dashboard(request):
     order = Booking.objects.filter()
     read_feedback = Feedback.objects.filter(status=1)
     unread_feedback = Feedback.objects.filter(status=2)
+    read_messages = Contact.objects.filter(status=1)
+    unread_messages = Contact.objects.filter(status=2)
     return render(request, 'admin_dashboard.html', locals())
 
 def add_category(request):
@@ -151,6 +173,21 @@ def delete_product(request, pid):
     messages.success(request, "Product Deleted")
     return redirect('view_product')
 
+# def registration(request):
+#     if request.method == "POST":
+#         fname = request.POST['fname']
+#         lname = request.POST['lname']
+#         email = request.POST['email']
+#         password = request.POST['password']
+#         address = request.POST['address']
+#         mobile = request.POST['mobile']
+#         image = request.FILES['image']
+#         user = User.objects.create_user(username=email, first_name=fname, last_name=lname, email=email, password=password)
+#         UserProfile.objects.create(user=user, mobile=mobile, address=address, image=image)
+#         messages.success(request, "Registration Successful")
+#     return render(request, 'registration.html', locals())
+
+
 def registration(request):
     if request.method == "POST":
         fname = request.POST['fname']
@@ -160,9 +197,17 @@ def registration(request):
         address = request.POST['address']
         mobile = request.POST['mobile']
         image = request.FILES['image']
-        user = User.objects.create_user(username=email, first_name=fname, last_name=lname, email=email, password=password)
-        UserProfile.objects.create(user=user, mobile=mobile, address=address, image=image)
-        messages.success(request, "Registeration Successful")
+        
+        try:
+            # Attempt to create the user
+            user = User.objects.create_user(username=email, first_name=fname, last_name=lname, email=email, password=password)
+            UserProfile.objects.create(user=user, mobile=mobile, address=address, image=image)
+            messages.success(request, "Registration Successful!")
+            return redirect('userlogin')  # Redirect to login page after success
+        except IntegrityError:
+            # If the email is already used
+            messages.error(request, "This email is already registered. Please use a different one.")
+    
     return render(request, 'registration.html', locals())
 
 def userlogin(request):
@@ -512,3 +557,49 @@ def admin_change_password(request):
             messages.success(request, "Invalid Password")
             return redirect('admin_change_password')
     return render(request, 'admin_change_password.html')
+
+def manage_messages(request):
+    if not request.user.is_staff:
+        return redirect('admin_login')
+    action = request.GET.get('action', 0)
+    msg = Contact.objects.filter(status=int(action))
+    return render(request, 'manage_messages.html', locals())
+
+# def delete_messages(request):
+#     if not request.user.is_staff:
+#         return redirect('admin_login')
+#     msg = Contact.objects.get(id)
+#     msg.delete()
+#     messages.success(request, "Deleted successfully")
+#     return redirect('/manage_messages/?action=1')
+
+# def read_messages(request, pid):
+#     if not request.user.is_staff:
+#         return redirect('admin_login')
+#     msg = Contact.objects.get(id=pid)
+#     msg.status = 1
+#     msg.save()
+#     return HttpResponse(json.dumps({'id':1, 'status':'success'}), content_type="application/json")
+
+def read_messages(request, pid):
+    if not request.user.is_staff:
+        return redirect('admin_login')
+    
+    # Get the specific message and mark it as read
+    msg = get_object_or_404(Contact, id=pid)
+    msg.status = 1  # Mark as read
+    msg.save()
+
+    return JsonResponse({'id': pid, 'status': 'success'})
+
+def delete_messages(request, pid):
+    if not request.user.is_staff:
+        return redirect('admin_login')
+    
+    # Fetch and delete the message
+    msg = get_object_or_404(Contact, id=pid)
+    msg.delete()
+    
+    # Success message for the admin
+    messages.success(request, "Message deleted successfully")
+    return redirect('/admin_dashboard/')  # Redirect to the admin dashboard

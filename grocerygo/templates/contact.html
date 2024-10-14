@@ -2,71 +2,75 @@
 <html>
 
 <head>
-    <title>Contact US</title>
-    <link rel="stylesheet" href="{% static 'css/contact.css' %}" </head>
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+</head>
 
 <body>
     {% include 'navigation.html' %}
     <div class="container">
         <div class="innerwrap">
 
+            <!-- Contact Heading Section -->
             <section class="section1 clearfix">
                 <div class="textcenter">
                     <h1 class="shtext">Contact Us</h1>
                     <span class="seperator"></span>
-                    <span class="shtext">Drop Us a Mail</span>
                 </div>
             </section>
 
+            <!-- Map and Contact Info Section -->
             <section class="section2 clearfix">
                 <div class="col2 column1 first">
-                    <script src='https://maps.googleapis.com/maps/api/js?v=3.exp'></script>
-                    <div class="sec2map" style='overflow:hidden;height:700px;width:100%;'>
-                        <div id='gmap_canvas' style='height:100%;width:100%;'></div>
-                        <div><small><a href="http://embedgooglemaps.com"> embed google maps </a></small></div>
-                        <div><small><a href="http://freedirectorysubmissionsites.com/">free web directories</a></small>
-                        </div>
-                        <style>
-                            #gmap_canvas img {
-                                max-width: none !important;
-                                background: none !important
-                            }
-                        </style>
+                    <!-- Map container with iframe -->
+                    <div class="sec2map" style="overflow:hidden;height:700px;width:100%;">
+                        <iframe 
+                            src="https://maps.google.com/maps?q=26/4%20A,%20Off%20Pune%20Nagar%20Road,%20Opposite%20Weikfield%20IT%20Citi%20Info%20Park,%2026/4A,%20Nagar%20Rd,%20Ramwadi,%20Wadgaon%20Sheri,%20Pune,%20Maharashtra%20411014&t=&z=14&ie=UTF8&iwloc=&output=embed" 
+                            frameborder="0" style="height:100%;width:100%;" allowfullscreen>
+                        </iframe>
                     </div>
-                    <script type='text/javascript'>
-                        function init_map() { var myOptions = { zoom: 14, center: new google.maps.LatLng(19.075314480255834, 72.88153973865361), mapTypeId: google.maps.MapTypeId.ROADMAP }; map = new google.maps.Map(document.getElementById('gmap_canvas'), myOptions); marker = new google.maps.Marker({ map: map, position: new google.maps.LatLng(19.075314480255834, 72.88153973865361) }); infowindow = new google.maps.InfoWindow({ content: '<strong>My Location</strong><br>mumbai<br>' }); google.maps.event.addListener(marker, 'click', function () { infowindow.open(map, marker); }); infowindow.open(map, marker); } google.maps.event.addDomListener(window, 'load', init_map);
-                    </script>
                 </div>
+
+                <!-- Contact Information and Form -->
                 <div class="col2 column2 last">
                     <div class="sec2innercont">
                         <div class="sec2addr">
-                            <p> 26/4 A, Off Pune Nagar Road, Opposite Weikfield IT Citi Info Park, 26/4A, Nagar Rd, Ramwadi, Wadgaon Sheri, Pune, Maharashtra 411014</p>
+                            <p>26/4 A, Off Pune Nagar Road, Opposite Weikfield IT Citi Info Park, 26/4A, Nagar Rd,
+                                Ramwadi, Wadgaon Sheri, Pune, Maharashtra 411014</p>
                             <p><span class="collig">Phone :</span> 9876543210</p>
                             <p><span class="collig">Email :</span> grocergo@gmail.com</p>
-                            <p><span class="collig">Fax :</span>  312-555-6789</p>
+                            <p><span class="collig">Fax :</span> 312-555-6789</p>
                         </div>
                     </div>
+
+                    <!-- Contact Form -->
                     <div class="sec2contactform">
-                        <h3 class="sec2frmtitle">Want to Know More?? Drop Us a Mail</h3>
-                        <form action="">
+                        <h3 class="sec2frmtitle">Want to Know More? Drop Us a Mail</h3>
+                        <form method="POST" action="{% url 'contact' %}">
+                            {% csrf_token %}
                             <div class="clearfix">
-                                <input class="col2 first" type="text" placeholder="FirstName">
-                                <input class="col2 last" type="text" placeholder="LastName">
+                                <input class="col2 first" type="text" name="first_name" placeholder="First Name"
+                                    required>
+                                <input class="col2 last" type="text" name="last_name" placeholder="Last Name" required>
                             </div>
                             <div class="clearfix">
-                                <input class="col2 first" type="Email" placeholder="Email">
-                                <input class="col2 last" type="text" placeholder="Contact Number">
+                                <input class="col2 first" type="email" name="email" placeholder="Email" required>
+                                <input class="col2 last" type="text" name="contact_number" placeholder="Contact Number"
+                                    required>
                             </div>
                             <div class="clearfix">
-                                <textarea name="textarea" id="" cols="30" rows="7">Your message here...</textarea>
+                                <textarea name="message" cols="30" rows="7" placeholder="Your message here..."
+                                    required></textarea>
                             </div>
-                            <div class="clearfix"><input type="submit" value="Send"></div>
+                            <div class="clearfix">
+                                <input type="submit" value="Send" onclick="alert('Message sent successfully!')">
+                            </div>
                         </form>
                     </div>
-
                 </div>
             </section>
 
         </div>
     </div>
 </body>
+</html>
