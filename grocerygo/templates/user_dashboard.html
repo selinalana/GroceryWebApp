@@ -1,0 +1,137 @@
+{% extends 'navigation.html' %}
+{% load static custom_tags %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- User Profile Summary Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ user_profile.image.url }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    <h4>{{ request.user.first_name }} {{ request.user.last_name }}</h4>
+                    <p class="text-muted">{{ request.user.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="col-md-8">
+            <div class="row">
+                <!-- Total Orders -->
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Orders</h5>
+                            <h2>{{ total_orders }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Orders -->
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Active Orders</h5>
+                            <h2>{{ active_orders }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Spent -->
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Spent</h5>
+                            <h2>₹{{ total_spent }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Items -->
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Items in Cart</h5>
+                            <h2>{{ cart_items }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.created|date:"M d, Y" }}</td>
+                                    <td>₹{{ order.total }}</td>
+                                    <td><span class="badge badge-{% if order.status == 1 %}warning{% elif order.status == 4 %}success{% else %}info{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span></td>
+                                    <td>
+                                        <a href="{% url 'user_order_track' order.id %}" class="btn btn-sm btn-primary">Track</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Products -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recommended Products</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for product in recommended_products %}
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100">
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                                     style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">
+                                        Price: ₹<del>{{ product.price }}</del>
+                                        {{ product.id|applydiscount }}
+                                    </p>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

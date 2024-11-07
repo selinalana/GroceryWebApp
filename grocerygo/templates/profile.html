@@ -9,60 +9,72 @@
 <div class="card shadow m-2">
     <div class="card-body">
         <h5 class="p-2 text-danger" style="border-bottom: 2px solid orange;">My Profile</h5>
-<div class="container-fluid">
-<form method="POST"  enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-row">
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>First Name</label>
-                <input type="text" name="fname" placeholder="Enter First Name"  class="form-control"  pattern="[A-Za-z]+" value="{{data.user.first_name}}">
-            </div>
+        <div class="container-fluid">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" name="fname" class="form-control" value="{{data.user.first_name}}" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="lname" class="form-control" value="{{data.user.last_name}}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Email ID</label>
+                            <input type="email" name="email" class="form-control" value="{{data.user.username}}" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Contact</label>
+                            <input type="text" name="mobile" class="form-control" value="{{data.mobile}}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Profile Picture</label>
+                            <input type="file" name="image" class="form-control">
+                        </div>
+                    </div>
+                    
+                    {% if data.image %}
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <img src="{{data.image.url}}" style="width:100px;height:100px">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea name="address" class="form-control" required>{{data.address}}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" value="Update Profile" class="m-2 px-3 btn btn-primary">
+            </form>
         </div>
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" name="lname" placeholder="Enter Last Name"  class="form-control" pattern="[A-Za-z]+" value="{{data.user.last_name}}">
-            </div>
-        </div>
- 
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Email ID</label>
-                <input type="email" name="email" readonly placeholder="Email Address" required class="form-control" value="{{data.user.username}}">
-            </div>
-        </div>
- 
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Contact</label>
-                <input type="text" name="mobile" placeholder="Contact Number" required class="form-control" value="{{data.mobile}}">
-            </div>
-        </div>
- 
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>User PIC</label>
-                <input type="file" name="image" class="form-control">
-            </div>
-        </div>
- 
-        <div class="col-sm-6">
-            <div class="form-group">
-                <img src = "{{data.image.url}}" width="100" height="100">
-            </div>
-        </div>
- 
-        <div class="col-sm-12">
-            <div class="form-group">
-                <label>Address</label>
-                <textarea name="address" class="form-control" placeholder="Full Address">{{data.address}}</textarea>
-            </div>
-        </div>
- 
     </div>
-    <input type="submit" value="Submit" class="m-2 px-3 btn btn-primary">
-</form>
 </div>
-</div>
-</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            alert('{{ message }}');
+        </script>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

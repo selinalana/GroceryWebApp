@@ -20,13 +20,6 @@ def navigation(request):
 def about(request):
     return render(request, 'about.html')
 
-# def index(request):
-#     if request.user.is_staff:
-#         return redirect('admindashboard')
-#     data = Carousel.objects.all()
-#     dict = {'data' :data}
-#     return render(request, 'index.html',dict)
-
 def index(request):
     data = Carousel.objects.all()
     # Get 4 random products for recommendations
@@ -78,26 +71,6 @@ def adminHome(request):
     if not request.user.is_staff:
         return redirect('admin_login')
     return render(request, 'admin_base.html')
-
-# def admin_dashboard(request):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-#     user = UserProfile.objects.filter()
-#     category = Category.objects.filter()
-#     product = Product.objects.filter()
-#     new_order = Booking.objects.filter(status=1)
-#     dispatch_order = Booking.objects.filter(status=2)
-#     way_order = Booking.objects.filter(status=3)
-#     deliver_order = Booking.objects.filter(status=4)
-#     cancel_order = Booking.objects.filter(status=5)
-#     return_order = Booking.objects.filter(status=6)
-#     order = Booking.objects.filter()
-#     read_feedback = Feedback.objects.filter(status=1)
-#     unread_feedback = Feedback.objects.filter(status=2)
-#     read_messages = Contact.objects.filter(status=1)
-#     unread_messages = Contact.objects.filter(status=2)
-#     return render(request, 'admin_dashboard.html', locals())
-
 
 def admin_dashboard(request):
     if not request.user.is_staff:
@@ -248,21 +221,6 @@ def delete_product(request, pid):
     messages.success(request, "Product Deleted")
     return redirect('view_product')
 
-# def registration(request):
-#     if request.method == "POST":
-#         fname = request.POST['fname']
-#         lname = request.POST['lname']
-#         email = request.POST['email']
-#         password = request.POST['password']
-#         address = request.POST['address']
-#         mobile = request.POST['mobile']
-#         image = request.FILES['image']
-#         user = User.objects.create_user(username=email, first_name=fname, last_name=lname, email=email, password=password)
-#         UserProfile.objects.create(user=user, mobile=mobile, address=address, image=image)
-#         messages.success(request, "Registration Successful")
-#     return render(request, 'registration.html', locals())
-
-
 def registration(request):
     if request.method == "POST":
         fname = request.POST['fname']
@@ -300,26 +258,31 @@ def userlogin(request):
 
 def profile(request):
     if not request.user.is_authenticated:
-        return redirect ('userlogin')
-    user = User.objects.get(id=request.user.id)
-    data = UserProfile.objects.filter(user=user)
+        return redirect('userlogin')
+        
+    try:
+        data = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        data = UserProfile.objects.create(user=request.user)
+
     if request.method == "POST":
-        fname = request.POST['fname']
-        lname = request.POST['lname']
-        email = request.POST['email'] 
-        address = request.POST['address']
-        mobile = request.POST['mobile']
-        try:
-            image = request.FILES['image']
-            data.image = image
-            data.save()
-        except:
-            pass
-        user = User.objects.filter(id=request.user.id).update(first_name=fname, last_name=lname)
-        UserProfile.objects.filter(id=data.id).update(mobile=mobile, address=address)
-        messages.success(request, "Profile updated")
+        # Update user info
+        request.user.first_name = request.POST['fname']
+        request.user.last_name = request.POST['lname']
+        request.user.save()
+
+        # Update profile info
+        data.mobile = request.POST['mobile']
+        data.address = request.POST['address']
+        
+        if 'image' in request.FILES:
+            data.image = request.FILES['image']
+        
+        data.save()
+        messages.success(request, "Profile updated successfully")
         return redirect('profile')
-    return render(request, 'profile.html', locals())
+
+    return render(request, 'profile.html', {'data': data})
 
 def logoutuser(request):
     logout(request)
@@ -356,11 +319,6 @@ def user_product(request,pid):
         product = Product.objects.filter(category=category)
     allcategory = Category.objects.all()
     return render(request, "user-product.html", locals())
-
-# def product_detail(request, pid):
-#     product = Product.objects.get(id=pid)
-#     latest_product = Product.objects.filter().exclude(id=pid).order_by('-id')[:10]
-#     return render(request, "product_detail.html", locals())
 
 def product_detail(request, pid):
     product = Product.objects.get(id=pid)
@@ -539,20 +497,6 @@ def read_feedback(request, pid):
     feedback.save()
     return HttpResponse(json.dumps({'id':1, 'status':'success'}), content_type="application/json")
 
-# def payment(request):
-#     if not request.user.is_authenticated:
-#         return redirect ('userlogin')
-#     total = request.GET.get('total')
-#     discounted = request.GET.get('discounted')
-#     cart = Cart.objects.get(user=request.user)
-#     if request.method == "POST":
-#         book = Booking.objects.create(user=request.user, product=cart.product, total=discounted)
-#         cart.product = {'objects': []}
-#         cart.save()
-#         messages.success(request, "Book Order Successfully")
-#         return redirect('myorder')
-#     return render(request, 'payment.html', locals())
-
 def payment(request):
     if not request.user.is_authenticated:
         return redirect('userlogin')
@@ -650,13 +594,6 @@ def admin_change_password(request):
             return redirect('admin_change_password')
     return render(request, 'admin_change_password.html')
 
-# def manage_messages(request):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-#     action = request.GET.get('action', 0)
-#     msg = Contact.objects.filter(status=int(action))
-#     return render(request, 'manage_messages.html', locals())
-
 def manage_messages(request):
     if not request.user.is_staff:
         return redirect('admin_login')
@@ -672,18 +609,6 @@ def manage_messages(request):
         'action': action
     }
     return render(request, 'manage_messages.html', context)
-
-
-# def read_messages(request, pid):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-    
-#     # Get the specific message and mark it as read
-#     msg = get_object_or_404(Contact, id=pid)
-#     msg.status = 1  # Mark as read
-#     msg.save()
-
-#     return JsonResponse({'id': pid, 'status': 'success'})
 
 def read_messages(request, pid):
     if not request.user.is_staff:
@@ -711,18 +636,6 @@ def get_message_counts(request):
         'read_count': read_count
     })
 
-# def delete_messages(request, pid):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-    
-#     # Fetch and delete the message
-#     msg = get_object_or_404(Contact, id=pid)
-#     msg.delete()
-    
-#     # Success message for the admin
-#     messages.success(request, "Message deleted successfully")
-#     return redirect('/admin_dashboard/')  # Redirect to the admin dashboard
-
 def delete_messages(request, pid):
     if not request.user.is_staff:
         return redirect('admin_login')
@@ -736,7 +649,6 @@ def delete_messages(request, pid):
         messages.error(request, "Message not found")
         return redirect('/manage-messages/?action=' + request.GET.get('action', '2'))
 
-
 def track_purchase(request, pid):
     if request.user.is_authenticated:
         product = Product.objects.get(id=pid)
@@ -746,3 +658,56 @@ def track_purchase(request, pid):
             interaction_type='purchase'
         )
     return redirect('cart')
+
+def user_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('userlogin')
+    
+    # If admin is logged in, redirect to admin dashboard
+    if request.user.is_staff:
+        return redirect('admindashboard')
+    
+    try:
+        # Get user profile
+        user_profile = UserProfile.objects.get(user=request.user)
+        
+        # Get order statistics
+        total_orders = Booking.objects.filter(user=request.user).count()
+        active_orders = Booking.objects.filter(user=request.user, status__in=[1,2,3]).count()
+        
+        # Calculate total spent
+        orders = Booking.objects.filter(user=request.user)
+        total_spent = sum(float(order.total) for order in orders if order.total)
+        
+        # Get cart items count
+        try:
+            cart = Cart.objects.get(user=request.user)
+            cart_data = json.loads(str(cart.product).replace("'", '"'))
+            cart_items = sum(int(qty) for qty in cart_data['objects'][0].values())
+        except:
+            cart_items = 0
+        
+        # Get recent orders
+        recent_orders = Booking.objects.filter(user=request.user).order_by('-created')[:5]
+        
+        # Get recommended products
+        recommended_products = Product.objects.all().order_by('?')[:4]  # Random products for now
+        
+        context = {
+            'user_profile': user_profile,
+            'total_orders': total_orders,
+            'active_orders': active_orders,
+            'total_spent': total_spent,
+            'cart_items': cart_items,
+            'recent_orders': recent_orders,
+            'recommended_products': recommended_products,
+        }
+        
+        return render(request, 'user_dashboard.html', context)
+    
+    except UserProfile.DoesNotExist:
+        messages.error(request, "User profile not found")
+        return redirect('index')
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('index')

@@ -53,6 +53,7 @@ urlpatterns = [
     path('get_message_counts/', get_message_counts, name='get_message_counts'),
     path('delete-messages/<int:pid>/', delete_messages, name='delete_messages'), 
     path('track-purchase/<int:pid>/', track_purchase, name='track_purchase'),
+    path('user-dashboard/', user_dashboard, name='user_dashboard'),
 
     
 
