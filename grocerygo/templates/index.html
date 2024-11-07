@@ -2,68 +2,87 @@
 {% load static custom_tags %}
 {% block content %}
 <style>
-    img{
-        height:500px;
+    .carousel-img {
+        height: 500px;
     }
     .carousel-caption {
         background-color: rgba(0,0,0,0.5);
     }
+    /* Add styles for recommended products */
+    .recommended-section {
+        padding: 40px 0;
+        background: #f8f9fa;
+    }
+    .product-card {
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
 </style>
+
+<!-- Carousel Section -->
 <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-  </ol>
-  <div class="carousel-inner">
-    {% for i in data %}
-        <div class="carousel-item {% if forloop.counter == 1 %}active{% endif %}">
-          <img class="d-block w-100" src="{{i.image.url}}" alt="{{i.title}}">
-          <div class="carousel-caption d-none d-md-block">
-            <!-- <h5>{{i.title}}</h5>
-            <p>{{i.description}}</p> -->
-          </div>
-        </div>
-    {% endfor %}
-
-  </div>
-  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Previous</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Next</span>
-  </a>
-</div>
-
-{% if user.is_authenticated %}
-<div class="container mt-5 mb-5">
-    <h2 class="text-center mb-4">Recommended for You</h2>
-    <div class="row">
-        {% for product in recommended_products %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100">
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
-                     style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text">
-                        Price: Rs. <del>{{ product.price }}</del>
-                        {{ product.id|applydiscount }}
-                    </p>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">
-                            View Details
-                        </a>
-                        <a href="{% url 'addToCart' product.id %}" class="btn btn-primary">Add to Cart</a>
-                    </div>
-                </div>
+    <ol class="carousel-indicators">
+        {% for i in data %}
+        <li data-target="#carouselExampleIndicators" data-slide-to="{{forloop.counter0}}" {% if forloop.first %}class="active"{% endif %}></li>
+        {% endfor %}
+    </ol>
+    <div class="carousel-inner">
+        {% for i in data %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img class="d-block w-100 carousel-img" src="{{i.image.url}}" alt="{{i.title}}">
+            <div class="carousel-caption d-none d-md-block">
+                <!-- <h5>{{i.title}}</h5>
+                <p>{{i.description}}</p> -->
             </div>
         </div>
         {% endfor %}
     </div>
+    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
 </div>
-{% endif %}
 
+<!-- Recommended Products Section -->
+<section class="recommended-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2>Recommended Products</h2>
+            </div>
+        </div>
+        <div class="row">
+            {% for product in recommended %}
+            <div class="col-md-3">
+                <div class="card product-card">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">
+                            <span class="text-muted"><del>Rs. {{ product.price }}</del></span>
+                            <br>
+                            <span class="text-success">Rs. {{ product.id|applydiscount }}</span>
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <a href="/add-to-cart/{{product.id}}/" class="btn btn-primary btn-sm">
+                                <i class="fa fa-shopping-cart"></i> Add to Cart
+                            </a>
+                            <a href="/product-detail/{{product.id}}/" class="btn btn-warning btn-sm">
+                                <i class="fa fa-info"></i> Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 {% endblock content %}

@@ -1,190 +1,508 @@
 {% extends 'admin_base.html' %}
 {% block content %}
 <style>
-.glow {
-  font-size: 80px;
-  color: #fff;
-  text-align: center;
-  -webkit-animation: glow 1s ease-in-out infinite alternate;
-  -moz-animation: glow 1s ease-in-out infinite alternate;
-  animation: glow 1s ease-in-out infinite alternate;
+/* Modern Dashboard Styling */
+:root {
+    --primary-color: #4e73df;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
 }
-@-webkit-keyframes glow {
-  from {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
-  }
-  to {
-    text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6, 0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
-  }
+
+.dashboard-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    border-radius: 15px;
+    margin-bottom: 2rem;
 }
-/* Rounded border */
-hr.rounded {
-  border-top: 8px solid lightblue;
-  border-radius: 5px;
+
+.stat-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #1a1c23 0%, #242731 100%);
+    border: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.stat-card .icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #F1948A;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #F1948A;
+}
+
+.stat-card .card-footer {
+    background: rgba(255,255,255,0.05);
+    border-top: none;
+    padding: 1rem;
+}
+
+.stat-card .card-footer a {
+    color: #ffd700;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stat-card .card-footer a:hover {
+    color: #fff;
+}
+
+.chart-container {
+    background: #1a1c23;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    height: 400px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-container canvas {
+    flex: 1;
+    width: 100% !important;
+    height: calc(100% - 50px) !important;
+}
+
+.chart-title {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Animation for stats */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-value {
+    animation: countUp 0.5s ease-out forwards;
 }
 </style>
-<div class="row">
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Total Users</h4>
-                <h5 style="color : #F1948A">{{user.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-user/" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Total Products</h4>
-                <h5 style="color : #F1948A">{{product.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/view-product/" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Total Category</h4>
-                <h5 style="color : #F1948A">{{category.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/view-category/" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">New Order</h4>
-                <h5 style="color : #F1948A"> {{new_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=1" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Dispatch Order</h4>
-                <h5 style="color : #F1948A"> {{dispatch_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=2" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">On The Way Order</h4>
-                <h5 style="color : #F1948A">{{way_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=3" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Delivered Order</h4>
-                <h5 style="color : #F1948A">{{deliver_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=4" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Cancel Order</h4>
-                <h5 style="color : #F1948A">{{cancel_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=5" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Return Order</h4>
-                <h5 style="color : #F1948A">{{return_order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=6" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Total Order</h4>
-                <h5 style="color : #F1948A"> {{order.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-order/?action=0" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Read Feedback</h4>
-                <h5 style="color : #F1948A"> {{read_feedback.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-feedback/?action=1" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Unread Feedback</h4>
-                <h5 style="color : #F1948A"> {{unread_feedback.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-feedback/?action=2" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Read Messages</h4>
-                <h5 style="color : #F1948A" id="read-messages-count">{{read_messages.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-messages/?action=1" class="text-warning">View Details >></a>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3 p-2">
-        <div class="card shadow bg-dark">
-            <div class="card-body">
-                <h4 class="text-light">Unread Messages</h4>
-                <h5 style="color : #F1948A" id="unread-messages-count">{{unread_messages.count}}</h5>
-            </div>
-            <div class="card-footer">
-                <a href="/manage-messages/?action=2" class="text-warning">View Details >></a>
-            </div>
-        </div>
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1 class="h3 mb-0">Dashboard Overview</h1>
+    <p class="mb-0">Welcome back, Admin! Here's what's happening today.</p>
 </div>
+
+<!-- Stats Grid -->
+<div class="row">
+    <!-- Users Stats -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="text-light">Total Users</h4>
+                <div class="stat-value">{{user.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-user/">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Stats -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h4 class="text-light">Total Products</h4>
+                <div class="stat-value">{{product.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/view-product/">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Stats -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <h4 class="text-light">Total Categories</h4>
+                <div class="stat-value">{{category.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/view-category/">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Orders Stats -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h4 class="text-light">New Orders</h4>
+                <div class="stat-value">{{new_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=1">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispatch Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h4 class="text-light">Dispatch Orders</h4>
+                <div class="stat-value">{{dispatch_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=2">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- On The Way Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h4 class="text-light">On The Way</h4>
+                <div class="stat-value">{{way_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=3">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivered Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h4 class="text-light">Delivered Orders</h4>
+                <div class="stat-value">{{deliver_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href ="/manage-order/?action=4">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelled Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <h4 class="text-light">Cancelled Orders</h4>
+                <div class="stat-value">{{cancel_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=5">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <h4 class="text-light">Return Orders</h4>
+                <div class="stat-value">{{return_order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=6">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-list-alt"></i>
+                </div>
+                <h4 class="text-light">Total Orders</h4>
+                <div class="stat-value">{{order.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-order/?action=0">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Stats -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h4 class="text-light">Read Feedback</h4>
+                <div class="stat-value">{{read_feedback.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-feedback/?action=1">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-comments-slash"></i>
+                </div>
+                <h4 class="text-light">Unread Feedback</h4>
+                <div class="stat-value">{{unread_feedback.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-feedback/?action=2">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h4 class="text-light">Read Messages</h4>
+                <div class="stat-value" id="read-messages-count">{{read_messages.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-messages/?action=1">View Details <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card shadow">
+            <div class="card-body">
+                <div class="icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h4 class="text-light">Unread Messages</h4>
+                <div class="stat-value" id="unread-messages-count">{{unread_messages.count}}</div>
+            </div>
+            <div class="card-footer">
+                <a href="/manage-messages/?action=2">View Details <i class="fas fa-arrow-right"></i></a>
+ </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mt-4">
+    <div class="col-xl-8 col-lg-7">
+        <div class="chart-container">
+            <h4 class="chart-title">Sales Overview</h4>
+            <canvas id="monthlySalesChart"></canvas>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-5">
+        <div class="chart-container">
+            <h4 class="chart-title">Order Status</h4>
+            <canvas id="orderStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Charts -->
+<div class="row">
+    <div class="col-xl-6">
+        <div class="chart-container">
+            <h4 class="chart-title">Products by Category</h4>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="chart-container">
+            <h4 class="chart-title">User  Activity</h4>
+            <canvas id="userActivityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+// Common options for all charts
+const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            labels: {
+                color: '#fff'
+            }
+        }
+    }
+};
+
+// Order Status Chart
+const orderStatusChart = new Chart(
+    document.getElementById('orderStatusChart'),
+    {
+        type: 'pie',
+        data: {
+            labels: ['New', 'Dispatched', 'On The Way', 'Delivered', 'Cancelled', 'Returned'],
+            datasets: [{
+                data: [
+                    {{ new_order.count }},
+                    {{ dispatch_order.count }},
+                    {{ way_order.count }},
+                    {{ deliver_order.count }},
+                    {{ cancel_order.count }},
+                    {{ return_order.count }}
+                ],
+                backgroundColor: [
+                    '#36A2EB',
+                    '#FF6384',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#FF9F40',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                legend: {
+                    ...commonOptions.plugins.legend,
+                    position: 'bottom'
+                }
+            }
+        }
+    }
+);
+
+// Product Categories Chart
+const categoryChart = new Chart(
+    document.getElementById('categoryChart'),
+    {
+        type: 'bar',
+        data: {
+            labels: [{% for cat in category %}'{{ cat.name }}',{% endfor %}],
+            datasets: [{
+                label: 'Number of Products',
+                data: [{% for cat in category %}{{ cat.product_set.count }},{% endfor %}],
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    }
+);
+
+// Monthly Sales Chart
+const monthlySalesChart = new Chart(
+    document.getElementById('monthlySalesChart'),
+    {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels|safe }},
+            datasets: [{
+                label: 'Sales',
+                data: {{ monthly_sales }},
+                fill: false,
+                borderColor: '#4BC0C0',
+                tension: 0.1
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    }
+);
+
+// User Activity Chart
+const userActivityChart = new Chart(
+    document.getElementById('userActivityChart'),
+    {
+        type: 'doughnut',
+        data: {
+            labels: ['Active Users', 'Inactive Users'],
+            datasets: [{
+                data: [{{ active_users }}, {{ inactive_users }}],
+                backgroundColor: ['#4BC0C0', '#FF6384']
+            }]
+        },
+ options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                legend: {
+                    ...commonOptions.plugins.legend,
+                    position: 'bottom'
+                }
+            }
+        }
+    }
+);
+</script>
 {% endblock content %}

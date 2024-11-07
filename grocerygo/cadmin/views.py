@@ -7,6 +7,9 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db import IntegrityError
 from .recommender import get_recommendations
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+from datetime import datetime, timedelta
 
 def home(request):
     return render(request, 'home.html')
@@ -26,11 +29,12 @@ def about(request):
 
 def index(request):
     data = Carousel.objects.all()
-    if request.user.is_authenticated:
-        recommended_products = get_recommendations(request.user.id)
-    else:
-        recommended_products = Product.objects.order_by('?')[:4]
-    return render(request, 'index.html', locals())
+    # Get 4 random products for recommendations
+    recommended = Product.objects.all().order_by('?')[:4]
+    return render(request, 'index.html', {
+        'data': data,
+        'recommended': recommended
+    })
 
 
 def contact(request):
@@ -75,24 +79,85 @@ def adminHome(request):
         return redirect('admin_login')
     return render(request, 'admin_base.html')
 
+# def admin_dashboard(request):
+#     if not request.user.is_staff:
+#         return redirect('admin_login')
+#     user = UserProfile.objects.filter()
+#     category = Category.objects.filter()
+#     product = Product.objects.filter()
+#     new_order = Booking.objects.filter(status=1)
+#     dispatch_order = Booking.objects.filter(status=2)
+#     way_order = Booking.objects.filter(status=3)
+#     deliver_order = Booking.objects.filter(status=4)
+#     cancel_order = Booking.objects.filter(status=5)
+#     return_order = Booking.objects.filter(status=6)
+#     order = Booking.objects.filter()
+#     read_feedback = Feedback.objects.filter(status=1)
+#     unread_feedback = Feedback.objects.filter(status=2)
+#     read_messages = Contact.objects.filter(status=1)
+#     unread_messages = Contact.objects.filter(status=2)
+#     return render(request, 'admin_dashboard.html', locals())
+
+
 def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('admin_login')
-    user = UserProfile.objects.filter()
-    category = Category.objects.filter()
-    product = Product.objects.filter()
+    
+    # Existing dashboard data
+    user = UserProfile.objects.all()
+    category = Category.objects.all()
+    product = Product.objects.all()
     new_order = Booking.objects.filter(status=1)
     dispatch_order = Booking.objects.filter(status=2)
     way_order = Booking.objects.filter(status=3)
     deliver_order = Booking.objects.filter(status=4)
     cancel_order = Booking.objects.filter(status=5)
     return_order = Booking.objects.filter(status=6)
-    order = Booking.objects.filter()
+    order = Booking.objects.all()
     read_feedback = Feedback.objects.filter(status=1)
     unread_feedback = Feedback.objects.filter(status=2)
     read_messages = Contact.objects.filter(status=1)
     unread_messages = Contact.objects.filter(status=2)
-    return render(request, 'admin_dashboard.html', locals())
+
+    # Monthly sales data (last 6 months)
+    six_months_ago = datetime.today() - timedelta(days=180)
+    monthly_sales = (Booking.objects
+        .filter(created__gte=six_months_ago)
+        .annotate(month=TruncMonth('created'))
+        .values('month')
+        .annotate(total_sales=Count('id'))
+        .order_by('month'))
+
+    monthly_labels = [item['month'].strftime("%B %Y") for item in monthly_sales]
+    monthly_data = [item['total_sales'] for item in monthly_sales]
+
+    # User activity data
+    active_users = User.objects.filter(is_active=True).count()
+    inactive_users = User.objects.filter(is_active=False).count()
+
+    context = {
+        'user': user,
+        'category': category,
+        'product': product,
+        'new_order': new_order,
+        'dispatch_order': dispatch_order,
+        'way_order': way_order,
+        'deliver_order': deliver_order,
+        'cancel_order': cancel_order,
+        'return_order': return_order,
+        'order': order,
+        'read_feedback': read_feedback,
+        'unread_feedback': unread_feedback,
+        'read_messages': read_messages,
+        'unread_messages': unread_messages,
+        'monthly_labels': monthly_labels,
+        'monthly_sales': monthly_data,
+        'active_users': active_users,
+        'inactive_users': inactive_users,
+    }
+    
+    return render(request, 'admin_dashboard.html', context)
+
 
 def add_category(request):
     if not request.user.is_staff:
