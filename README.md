@@ -48,7 +48,7 @@ Database:<br>
 <br>
 <center><b><u>Visual Details of Web pages. </u></b></center>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.37.28.png>)
+![alt text](media/Screenshot 2024-11-07 at 20.37.28.png)
 Fig 1 : Landing page for users
 <br>
 <br>
