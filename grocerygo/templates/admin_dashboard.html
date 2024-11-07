@@ -169,7 +169,7 @@ hr.rounded {
         <div class="card shadow bg-dark">
             <div class="card-body">
                 <h4 class="text-light">Read Messages</h4>
-                <h5 style="color : #F1948A"> {{read_messages.count}}</h5>
+                <h5 style="color : #F1948A" id="read-messages-count">{{read_messages.count}}</h5>
             </div>
             <div class="card-footer">
                 <a href="/manage-messages/?action=1" class="text-warning">View Details >></a>
@@ -180,12 +180,11 @@ hr.rounded {
         <div class="card shadow bg-dark">
             <div class="card-body">
                 <h4 class="text-light">Unread Messages</h4>
-                <h5 style="color : #F1948A"> {{unread_messages.count}}</h5>
+                <h5 style="color : #F1948A" id="unread-messages-count">{{unread_messages.count}}</h5>
             </div>
             <div class="card-footer">
                 <a href="/manage-messages/?action=2" class="text-warning">View Details >></a>
             </div>
         </div>
-    </div>
 </div>
 {% endblock content %}

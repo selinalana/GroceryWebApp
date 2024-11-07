@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -6,6 +6,7 @@ import json
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db import IntegrityError
+from .recommender import get_recommendations
 
 def home(request):
     return render(request, 'home.html')
@@ -16,12 +17,21 @@ def navigation(request):
 def about(request):
     return render(request, 'about.html')
 
+# def index(request):
+#     if request.user.is_staff:
+#         return redirect('admindashboard')
+#     data = Carousel.objects.all()
+#     dict = {'data' :data}
+#     return render(request, 'index.html',dict)
+
 def index(request):
-    if request.user.is_staff:
-        return redirect('admindashboard')
     data = Carousel.objects.all()
-    dict = {'data' :data}
-    return render(request, 'index.html',dict)
+    if request.user.is_authenticated:
+        recommended_products = get_recommendations(request.user.id)
+    else:
+        recommended_products = Product.objects.order_by('?')[:4]
+    return render(request, 'index.html', locals())
+
 
 def contact(request):
     if request.method == 'POST':
@@ -282,8 +292,19 @@ def user_product(request,pid):
     allcategory = Category.objects.all()
     return render(request, "user-product.html", locals())
 
+# def product_detail(request, pid):
+#     product = Product.objects.get(id=pid)
+#     latest_product = Product.objects.filter().exclude(id=pid).order_by('-id')[:10]
+#     return render(request, "product_detail.html", locals())
+
 def product_detail(request, pid):
     product = Product.objects.get(id=pid)
+    if request.user.is_authenticated:
+        UserInteraction.objects.create(
+            user=request.user,
+            product=product,
+            interaction_type='view'
+        )
     latest_product = Product.objects.filter().exclude(id=pid).order_by('-id')[:10]
     return render(request, "product_detail.html", locals())
 
@@ -347,30 +368,6 @@ def deletecart(request, pid):
     messages.success(request, "Delete Successfully")
     return redirect('cart')
 
-# def booking(request):
-#     if not request.user.is_authenticated:
-#         return redirect ('userlogin')
-#     user = UserProfile.objects.get(user=request.user)
-#     cart = Cart.objects.get(user=request.user)
-#     total = 0
-#     discounted =0
-#     deduction = 0
-#     productid = (cart.product).replace("'", '"')
-#     productid = json.loads(str(productid))
-#     try:
-#         productid = productid['objects'][0]
-#     except:
-#         messages.success(request, "Cart is empty, Please add product in cart.")
-#         return redirect('cart')
-#     for i,j in productid.items():
-#         product = Product.objects.get(id=i)
-#         total += int(j) * float(product.price)
-#         price = float(product.price) * (100 - float(product.discount)) / 100
-#         discounted += int(j) * price
-#     deduction = total - discounted
-#     if request.method == "POST":
-#         return redirect('/payment/?total='+str(total)+'&discounted='+str(discounted)+'&deduction='+str(deduction))
-#     return render(request, "booking.html", locals())
 
 def booking(request):
     if not request.user.is_authenticated:
@@ -477,18 +474,48 @@ def read_feedback(request, pid):
     feedback.save()
     return HttpResponse(json.dumps({'id':1, 'status':'success'}), content_type="application/json")
 
+# def payment(request):
+#     if not request.user.is_authenticated:
+#         return redirect ('userlogin')
+#     total = request.GET.get('total')
+#     discounted = request.GET.get('discounted')
+#     cart = Cart.objects.get(user=request.user)
+#     if request.method == "POST":
+#         book = Booking.objects.create(user=request.user, product=cart.product, total=discounted)
+#         cart.product = {'objects': []}
+#         cart.save()
+#         messages.success(request, "Book Order Successfully")
+#         return redirect('myorder')
+#     return render(request, 'payment.html', locals())
+
 def payment(request):
     if not request.user.is_authenticated:
-        return redirect ('userlogin')
+        return redirect('userlogin')
+    
     total = request.GET.get('total')
     discounted = request.GET.get('discounted')
     cart = Cart.objects.get(user=request.user)
+    
     if request.method == "POST":
+        # Create booking
         book = Booking.objects.create(user=request.user, product=cart.product, total=discounted)
+        
+        # Track purchases
+        cart_products = json.loads(str(cart.product).replace("'", '"'))
+        for product_id in cart_products['objects'][0].keys():
+            UserInteraction.objects.create(
+                user=request.user,
+                product=Product.objects.get(id=int(product_id)),
+                interaction_type='purchase'
+            )
+            
+        # Clear cart
         cart.product = {'objects': []}
         cart.save()
-        messages.success(request, "Book Order Successfully")
+        
+        messages.success(request, "Order Placed Successfully")
         return redirect('myorder')
+        
     return render(request, 'payment.html', locals())
 
 def manage_order(request):
@@ -558,48 +585,99 @@ def admin_change_password(request):
             return redirect('admin_change_password')
     return render(request, 'admin_change_password.html')
 
+# def manage_messages(request):
+#     if not request.user.is_staff:
+#         return redirect('admin_login')
+#     action = request.GET.get('action', 0)
+#     msg = Contact.objects.filter(status=int(action))
+#     return render(request, 'manage_messages.html', locals())
+
 def manage_messages(request):
     if not request.user.is_staff:
         return redirect('admin_login')
-    action = request.GET.get('action', 0)
-    msg = Contact.objects.filter(status=int(action))
-    return render(request, 'manage_messages.html', locals())
+    action = request.GET.get('action', '2')  # Default to unread messages
+    
+    if action == '1':
+        messages = Contact.objects.filter(status=1)  # Read messages
+    else:
+        messages = Contact.objects.filter(status=2)  # Unread messages
+    
+    context = {
+        'msg': messages,
+        'action': action
+    }
+    return render(request, 'manage_messages.html', context)
 
-# def delete_messages(request):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-#     msg = Contact.objects.get(id)
-#     msg.delete()
-#     messages.success(request, "Deleted successfully")
-#     return redirect('/manage_messages/?action=1')
 
 # def read_messages(request, pid):
 #     if not request.user.is_staff:
 #         return redirect('admin_login')
-#     msg = Contact.objects.get(id=pid)
-#     msg.status = 1
+    
+#     # Get the specific message and mark it as read
+#     msg = get_object_or_404(Contact, id=pid)
+#     msg.status = 1  # Mark as read
 #     msg.save()
-#     return HttpResponse(json.dumps({'id':1, 'status':'success'}), content_type="application/json")
+
+#     return JsonResponse({'id': pid, 'status': 'success'})
 
 def read_messages(request, pid):
     if not request.user.is_staff:
         return redirect('admin_login')
     
-    # Get the specific message and mark it as read
-    msg = get_object_or_404(Contact, id=pid)
-    msg.status = 1  # Mark as read
-    msg.save()
+    try:
+        msg = Contact.objects.get(id=pid)
+        msg.status = 1  # Mark as read
+        msg.save()
+        return JsonResponse({'status': 'success', 'id': pid})
+    except Contact.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-    return JsonResponse({'id': pid, 'status': 'success'})
+def get_message_counts(request):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    unread_count = Contact.objects.filter(status=2).count()
+    read_count = Contact.objects.filter(status=1).count()
+    
+    return JsonResponse({
+        'unread_count': unread_count,
+        'read_count': read_count
+    })
+
+# def delete_messages(request, pid):
+#     if not request.user.is_staff:
+#         return redirect('admin_login')
+    
+#     # Fetch and delete the message
+#     msg = get_object_or_404(Contact, id=pid)
+#     msg.delete()
+    
+#     # Success message for the admin
+#     messages.success(request, "Message deleted successfully")
+#     return redirect('/admin_dashboard/')  # Redirect to the admin dashboard
 
 def delete_messages(request, pid):
     if not request.user.is_staff:
         return redirect('admin_login')
     
-    # Fetch and delete the message
-    msg = get_object_or_404(Contact, id=pid)
-    msg.delete()
-    
-    # Success message for the admin
-    messages.success(request, "Message deleted successfully")
-    return redirect('/admin_dashboard/')  # Redirect to the admin dashboard
+    try:
+        message = Contact.objects.get(id=pid)
+        message.delete()
+        messages.success(request, "Message deleted successfully")
+        return redirect('/manage-messages/?action=' + request.GET.get('action', '2'))
+    except Contact.DoesNotExist:
+        messages.error(request, "Message not found")
+        return redirect('/manage-messages/?action=' + request.GET.get('action', '2'))
+
+
+def track_purchase(request, pid):
+    if request.user.is_authenticated:
+        product = Product.objects.get(id=pid)
+        UserInteraction.objects.create(
+            user=request.user,
+            product=product,
+            interaction_type='purchase'
+        )
+    return redirect('cart')

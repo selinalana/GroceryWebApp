@@ -1,5 +1,5 @@
 {% extends 'navigation.html' %}
-{% load static %}
+{% load static custom_tags %}
 {% block content %}
 <style>
     img{
@@ -36,4 +36,34 @@
     <span class="sr-only">Next</span>
   </a>
 </div>
+
+{% if user.is_authenticated %}
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">Recommended for You</h2>
+    <div class="row">
+        {% for product in recommended_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                     style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">
+                        Price: Rs. <del>{{ product.price }}</del>
+                        {{ product.id|applydiscount }}
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">
+                            View Details
+                        </a>
+                        <a href="{% url 'addToCart' product.id %}" class="btn btn-primary">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {% endblock content %}

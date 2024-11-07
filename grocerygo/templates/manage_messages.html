@@ -3,83 +3,111 @@
 
 <div class="card shadow">
     <div class="card-body">
-
-        <h5 class="p-2" style="border-bottom: 2px solid orange;">View Messages</h5>
+        <h5 class="p-2" style="border-bottom: 2px solid orange;">
+            {% if action == '1' %}Read Messages{% else %}Unread Messages{% endif %}
+        </h5>
         <div class="container-fluid">
-
             <table class="table table-bordered table-sm" id="example">
                 <thead>
-                <tr>
-                    <th>S.No.</th>
-                    <th>View Message</th>
-                    <th>Action</th>
-                </tr>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Name</th>
+                        <th>View Message</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for i in msg %}
-                <tr id="row-{{forloop.counter}}">
-                    <td>{{forloop.counter}}</td>
-                    <td>{{i.first_name}} {{i.last_name}}</td>
-                    <td>
-                        <!-- <-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-toggle="modal" 
-                                data-target="#exampleModal-{{forloop.counter}}" 
-                                data-msg-id="{{i.id}}" data-status-id="{{i.status}}">
-                          View Message
-                        </button>
+                    {% for i in msg %}
+                    <tr id="row-{{forloop.counter}}">
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.first_name}} {{i.last_name}}</td>
+                        <td>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#exampleModal-{{forloop.counter}}" data-msg-id="{{i.id}}"
+                                data-status="{{i.status}}">
+                                View Message
+                            </button>
 
-                         <!-- <-- Modal --> 
-                         <div class="modal fade" id="exampleModal-{{forloop.counter}}" 
-                             tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" 
-                             aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">{{i.first_name}} {{i.last_name}}'s Message</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                  {{i.message}}
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                              </div>
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal-{{forloop.counter}}" data-msg-id="{{i.id}}"
+                                data-status="{{i.status}}" tabindex="-1" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{{i.first_name}} {{i.last_name}}'s Message</h5>
+                                            <button type="button" class="close" data-dismiss="modal">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{i.message}}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                          </div>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="/delete_messages/{{i.id}}/" class="text-danger"
-                           onclick="return confirm('Are You Sure?')">Delete</a></td>
-                </tr>
-                {% endfor %}
+                        </td>
+                        <td>
+                            <a href="/delete-messages/{{i.id}}/?action={{action}}" class="text-danger"
+                                onclick="return confirm('Are you sure you want to delete this message?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div> 
-</div> 
+    </div>
+</div>
 
- <script>
-    $(document).ready(function(){
-        $('.modal').on('hidden.bs.modal', function (e) {
-            let modalId = $(this).attr('id').split('-')[1];  // Get the modal counter
-            let msgId = $(this).data('msg-id');  // Store msg ID in data attribute
-            let statusId = $(this).data('status-id');
-            changeStatus(msgId, modalId, statusId);
+<script>
+    $(document).ready(function () {
+        $('.modal').on('hidden.bs.modal', function () {
+            let msgId = $(this).data('msg-id');
+            let status = $(this).data('status');
+            let rowId = $(this).attr('id').split('-')[1];
+
+            if (status == '2') { // If message was unread
+                markMessageAsRead(msgId, rowId);
+            }
         });
     });
 
-    function changeStatus(pid, count, status_id){
-        let url = '/message-read/' + pid + '/';
-        $.get(url, function(data, status){
-            if(status_id == '2'){
-                $('#row-' + count).hide();  // Use jQuery to hide the row
+    function markMessageAsRead(msgId, rowId) {
+        $.ajax({
+            url: '/read_messages/' + msgId + '/',
+            type: 'GET',
+            success: function (response) {
+                if (response.status === 'success') {
+                    if ('{{ action }}' === '2') {  // If we're in the unread messages section
+                        $('#row-' + rowId).fadeOut(function () {
+                            $(this).remove();
+                        });
+                    }
+                    updateMessageCounts();
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error marking message as read:", error);
+            }
+        });
+    }
+
+    function updateMessageCounts() {
+        $.ajax({
+            url: '/get_message_counts/',
+            type: 'GET',
+            success: function (response) {
+                $('#unread-messages-count').text(response.unread_count);
+                $('#read-messages-count').text(response.read_count);
             }
         });
     }
 </script>
 
 {% endblock content %}
-
