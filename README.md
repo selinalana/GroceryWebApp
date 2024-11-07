@@ -48,37 +48,37 @@ Database:<br>
 <br>
 <center><b><u>Visual Details of Web pages. </u></b></center>
 
-![alt text](media/Screenshot 2024-11-07 at 20.37.28.png)
+![alt text](<Images/Screenshot 2024-11-07 at 20.37.28.png>)
 Fig 1 : Landing page for users
 <br>
 <br>
 <br>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.51.23.png>)
+![alt text](<Images/Screenshot 2024-11-07 at 20.51.23.png>)
 Fig 2 : Page which displayes all the products.
 <br>
 <br>
 <br>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.51.35.png>)
+![alt text](<Images/Screenshot 2024-11-07 at 20.51.35.png>)
 Fig 3 : Sign Up Page.
 <br>
 <br>
 <br>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.54.18.png>)
+![alt text](<Images/Screenshot 2024-11-07 at 20.54.18.png>)
 Fig 4 : User Login page .
 <br>
 <br>
 <br>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.54.53.png>)
+![alt text](<Images/Screenshot 2024-11-07 at 20.54.53.png>)
 Fig 5 : User Dashboard.
 <br>
 <br>
 <br>
 
-![alt text](</media/Screenshot 2024-11-07 at 20.51.46.png>)
+![alt text](<Images/Screenshot 2024-11-07 at 20.51.46.png>)
 Fig 6 : Admin Login.
 <br>
 <br>
