@@ -8,8 +8,9 @@ from django.http import JsonResponse
 from django.db import IntegrityError
 from .recommender import get_recommendations
 from django.db.models import Count
-from django.db.models.functions import TruncMonth
+from django.db.models import Sum, F
 from datetime import datetime, timedelta
+from django.db.models.functions import TruncDate
 
 def home(request):
     return render(request, 'home.html')
@@ -28,7 +29,6 @@ def index(request):
         'data': data,
         'recommended': recommended
     })
-
 
 def contact(request):
     if request.method == 'POST':
@@ -92,21 +92,25 @@ def admin_dashboard(request):
     read_messages = Contact.objects.filter(status=1)
     unread_messages = Contact.objects.filter(status=2)
 
-    # Monthly sales data (last 6 months)
-    six_months_ago = datetime.today() - timedelta(days=180)
-    monthly_sales = (Booking.objects
-        .filter(created__gte=six_months_ago)
-        .annotate(month=TruncMonth('created'))
-        .values('month')
-        .annotate(total_sales=Count('id'))
-        .order_by('month'))
+    # Daily sales data (last 30 days or less)
+    thirty_days_ago = datetime.today() - timedelta(days=30)
+    daily_sales = (Booking.objects
+        .filter(
+            created__gte=thirty_days_ago,
+            status__in=[1, 2, 3, 4]  
+            # Explicitly exclude cancelled (status=5) and returned (status=6) orders
+        )
+        .annotate(date=TruncDate('created'))
+        .values('date')
+        .annotate(total_sales=Sum('total'))
+        .order_by('date'))
 
-    monthly_labels = [item['month'].strftime("%B %Y") for item in monthly_sales]
-    monthly_data = [item['total_sales'] for item in monthly_sales]
-
-    # User activity data
+       # User activity data
     active_users = User.objects.filter(is_active=True).count()
     inactive_users = User.objects.filter(is_active=False).count()
+
+    daily_labels = [item['date'].strftime("%d %b") for item in daily_sales]
+    daily_data = [float(item['total_sales'] or 0) for item in daily_sales]  # Handle None values
 
     context = {
         'user': user,
@@ -123,8 +127,8 @@ def admin_dashboard(request):
         'unread_feedback': unread_feedback,
         'read_messages': read_messages,
         'unread_messages': unread_messages,
-        'monthly_labels': monthly_labels,
-        'monthly_sales': monthly_data,
+        'daily_labels': daily_labels,
+        'daily_sales': daily_data,
         'active_users': active_users,
         'inactive_users': inactive_users,
     }

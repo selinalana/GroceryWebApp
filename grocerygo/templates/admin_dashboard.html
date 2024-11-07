@@ -1,104 +1,111 @@
 {% extends 'admin_base.html' %}
 {% block content %}
 <style>
-/* Modern Dashboard Styling */
-:root {
-    --primary-color: #4e73df;
-    --success-color: #1cc88a;
-    --info-color: #36b9cc;
-    --warning-color: #f6c23e;
-    --danger-color: #e74a3b;
-}
+    /* Modern Dashboard Styling */
+    :root {
+        --primary-color: #4e73df;
+        --success-color: #1cc88a;
+        --info-color: #36b9cc;
+        --warning-color: #f6c23e;
+        --danger-color: #e74a3b;
+    }
 
-.dashboard-header {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-    color: white;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-}
+    .dashboard-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
 
-.stat-card {
-    border-radius: 15px;
-    transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
-    background: linear-gradient(45deg, #1a1c23 0%, #242731 100%);
-    border: none;
-}
+    .stat-card {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(45deg, #1a1c23 0%, #242731 100%);
+        border: none;
+    }
 
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
 
-.stat-card .card-body {
-    padding: 1.5rem;
-}
+    .stat-card .card-body {
+        padding: 1.5rem;
+    }
 
-.stat-card .icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #F1948A;
-}
+    .stat-card .icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #F1948A;
+    }
 
-.stat-card .stat-value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #F1948A;
-}
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #F1948A;
+    }
 
-.stat-card .card-footer {
-    background: rgba(255,255,255,0.05);
-    border-top: none;
-    padding: 1rem;
-}
+    .stat-card .card-footer {
+        background: rgba(255, 255, 255, 0.05);
+        border-top: none;
+        padding: 1rem;
+    }
 
-.stat-card .card-footer a {
-    color: #ffd700;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
+    .stat-card .card-footer a {
+        color: #ffd700;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
 
-.stat-card .card-footer a:hover {
-    color: #fff;
-}
+    .stat-card .card-footer a:hover {
+        color: #fff;
+    }
 
-.chart-container {
-    background: #1a1c23;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    height: 400px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
+    .chart-container {
+        background: #1a1c23;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        height: 400px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
 
-.chart-container canvas {
-    flex: 1;
-    width: 100% !important;
-    height: calc(100% - 50px) !important;
-}
+    .chart-container canvas {
+        flex: 1;
+        width: 100% !important;
+        height: calc(100% - 50px) !important;
+    }
 
-.chart-title {
-    color: #fff;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
+    .chart-title {
+        color: #fff;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
 
-/* Animation for stats */
-@keyframes countUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    /* Animation for stats */
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
 
-.stat-value {
-    animation: countUp 0.5s ease-out forwards;
-}
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-value {
+        animation: countUp 0.5s ease-out forwards;
+    }
 </style>
 
 <!-- Dashboard Header -->
@@ -212,11 +219,12 @@
                 <div class="icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <h4 class="text-light">Delivered Orders</h4>
+                <h4 class ```html
+="text-light">Delivered Orders</h4>
                 <div class="stat-value">{{deliver_order.count}}</div>
             </div>
             <div class="card-footer">
-                <a href ="/manage-order/?action=4">View Details <i class="fas fa-arrow-right"></i></a>
+                <a href="/manage-order/?action=4">View Details <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -322,11 +330,11 @@
                     <i class="fas fa-envelope"></i>
                 </div>
                 <h4 class="text-light">Unread Messages</h4>
-                <div class="stat-value" id="unread-messages-count">{{unread_messages.count}}</div>
+                <div class="stat-value" id="unread-messages-count">{{unread_messages.count }}</div>
             </div>
             <div class="card-footer">
                 <a href="/manage-messages/?action=2">View Details <i class="fas fa-arrow-right"></i></a>
- </div>
+            </div>
         </div>
     </div>
 </div>
@@ -335,8 +343,8 @@
 <div class="row mt-4">
     <div class="col-xl-8 col-lg-7">
         <div class="chart-container">
-            <h4 class="chart-title">Sales Overview</h4>
-            <canvas id="monthlySalesChart"></canvas>
+            <h4 class="chart-title">Daily Sales</h4>
+            <canvas id="dailySalesChart"></canvas>
         </div>
     </div>
     <div class="col-xl-4 col-lg-5">
@@ -365,7 +373,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
 // Common options for all charts
 const commonOptions = {
     responsive: true,
@@ -378,6 +385,66 @@ const commonOptions = {
         }
     }
 };
+
+// Daily Sales Chart
+const dailySalesChart = new Chart(
+    document.getElementById('dailySalesChart'),
+    {
+        type: 'line',
+        data: {
+            labels: {{ daily_labels|safe }},
+            datasets: [{
+                label: 'Daily Sales Amount',
+                data: {{ daily_sales }},
+                fill: false,
+                borderColor: '#4BC0C0',
+                tension: 0.1,
+                pointBackgroundColor: '#4BC0C0',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { 
+                        color: '#fff',
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₹' + context.raw.toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        color: '#fff'
+                    }
+                }
+            }
+        }
+    }
+);
 
 // Order Status Chart
 const orderStatusChart = new Chart(
@@ -427,40 +494,8 @@ const categoryChart = new Chart(
             labels: [{% for cat in category %}'{{ cat.name }}',{% endfor %}],
             datasets: [{
                 label: 'Number of Products',
-                data: [{% for cat in category %}{{ cat.product_set.count }},{% endfor %}],
+                data: [{% for cat in category %}{{ cat.product_set.count }}, {% endfor %}],
                 backgroundColor: '#36A2EB'
-            }]
-        },
-        options: {
-            ...commonOptions,
-            scales: {
-                x: {
-                    ticks: { color: '#fff' },
-                    grid: { color: 'rgba(255,255,255,0.1)' }
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: '#fff' },
-                    grid: { color: 'rgba(255,255,255,0.1)' }
-                }
-            }
-        }
-    }
-);
-
-// Monthly Sales Chart
-const monthlySalesChart = new Chart(
-    document.getElementById('monthlySalesChart'),
-    {
-        type: 'line',
-        data: {
-            labels: {{ monthly_labels|safe }},
-            datasets: [{
-                label: 'Sales',
-                data: {{ monthly_sales }},
-                fill: false,
-                borderColor: '#4BC0C0',
-                tension: 0.1
             }]
         },
         options: {
@@ -492,7 +527,7 @@ const userActivityChart = new Chart(
                 backgroundColor: ['#4BC0C0', '#FF6384']
             }]
         },
- options: {
+        options: {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,

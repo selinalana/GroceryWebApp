@@ -22,8 +22,8 @@ Our mission is to simplify your life by offering a wide range of groceries, from
 <center><b><u>MAIN FUNCTIONS </u></b></center><br>
 1. User authenication and authorization. <br>
 2. Profile Creation and Management. <br>
-3. Category and Product Creation and Management
-4. Order Management
+3. Category and Product Creation and Management<br>
+4. Order Management<br>
 5. Admin Dashboard.<br>
 6. Viewing and Buying Products<br>
 7. Cart Page<br>
