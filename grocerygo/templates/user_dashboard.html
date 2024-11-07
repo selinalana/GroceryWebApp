@@ -8,7 +8,8 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-body text-center">
-                    <img src="{{ user_profile.image.url }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    <img src="{{ user_profile.image.url }}" class="rounded-circle mb-3"
+                        style="width: 150px; height: 150px; object-fit: cover;">
                     <h4>{{ request.user.first_name }} {{ request.user.last_name }}</h4>
                     <p class="text-muted">{{ request.user.email }}</p>
                 </div>
@@ -86,11 +87,13 @@
                                     <td>#{{ order.id }}</td>
                                     <td>{{ order.created|date:"M d, Y" }}</td>
                                     <td>₹{{ order.total }}</td>
-                                    <td><span class="badge badge-{% if order.status == 1 %}warning{% elif order.status == 4 %}success{% else %}info{% endif %}">
-                                        {{ order.get_status_display }}
-                                    </span></td>
+                                    <td><span
+                                            class="badge badge-{% if order.status == 1 %}warning{% elif order.status == 4 %}success{% else %}info{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span></td>
                                     <td>
-                                        <a href="{% url 'user_order_track' order.id %}" class="btn btn-sm btn-primary">Track</a>
+                                        <a href="{% url 'user_order_track' order.id %}"
+                                            class="btn btn-sm btn-primary">Track</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -102,36 +105,53 @@
         </div>
     </div>
 
-    <!-- Recommended Products -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recommended Products</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        {% for product in recommended_products %}
-                        <div class="col-md-3 mb-4">
-                            <div class="card h-100">
-                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
-                                     style="height: 200px; object-fit: cover;">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ product.name }}</h5>
-                                    <p class="card-text">
-                                        Price: ₹<del>{{ product.price }}</del>
-                                        {{ product.id|applydiscount }}
-                                    </p>
-                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View Details</a>
-                                </div>
+    <!-- Recommended Products Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Recommended Products</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for product in recommended_products %}
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"
+                            style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">
+                                {% with price_info=product.id|applydiscount %}
+                                {% if price_info.has_discount %}
+                                <span class="text-muted"><del>Rs. {{ price_info.original_price|floatformat:2
+                                        }}</del></span>
+                                <br>
+                                <span class="text-success">Rs. {{ price_info.final_price|floatformat:2 }}</span>
+                                {% else %}
+                                <span class="text-success">Rs. {{ price_info.original_price|floatformat:2 }}</span>
+                                {% endif %}
+                                {% endwith %}
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="/add-to-cart/{{ product.id }}/" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-shopping-cart"></i> Add to Cart
+                                </a>
+                                <a href="/product-detail/{{ product.id }}/" class="btn btn-warning btn-sm">
+                                    <i class="fa fa-info"></i> Details
+                                </a>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
+                {% empty %}
+                <div class="col-12">
+                    <p>No recommended products available at the moment.</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+</div>
+</div>
 </div>
 
 {% endblock %}

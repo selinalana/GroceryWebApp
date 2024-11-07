@@ -3,17 +3,44 @@ from cadmin.models import *
 register = template.Library()
 import json
 
+# @register.filter()
+# def applydiscount(pid):
+#     data = Product.objects.get(id=pid)
+#     price = data.price if data.price else 0  
+#     discount = data.discount if data.discount else 0 
+#     try:
+#         final_price = int(price) * (100 - int(discount)) / 100
+#     except ValueError:
+#         final_price = 0
+#     return final_price
+
 @register.filter()
 def applydiscount(pid):
     data = Product.objects.get(id=pid)
-    price = data.price if data.price else 0  
-    discount = data.discount if data.discount else 0 
     try:
-        final_price = int(price) * (100 - int(discount)) / 100
-    except ValueError:
-        final_price = 0
-    return final_price
-
+        price = float(data.price) if data.price else 0  
+        discount = float(data.discount) if data.discount else 0 
+        
+        if discount > 0:  # Only calculate discount if it exists
+            final_price = price * (100 - discount) / 100
+            return {
+                'original_price': price,
+                'final_price': final_price,
+                'has_discount': True
+            }
+        else:
+            return {
+                'original_price': price,
+                'final_price': price,
+                'has_discount': False
+            }
+    except (ValueError, TypeError):
+        return {
+            'original_price': 0,
+            'final_price': 0,
+            'has_discount': False
+        }
+    
 @register.filter()
 def productimage(pid):
     data = Product.objects.get(id=pid)
